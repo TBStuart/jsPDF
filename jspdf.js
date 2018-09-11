@@ -54,6 +54,8 @@
  * Possible values are "pt" (points), "mm" (Default), "cm", "in" or "px".
  * @param format {String/Array} The format of the first page. Can be <ul><li>a0 - a10</li><li>b0 - b10</li><li>c0 - c10</li><li>c0 - c10</li><li>dl</li><li>letter</li><li>government-letter</li><li>legal</li><li>junior-legal</li><li>ledger</li><li>tabloid</li><li>credit-card</li></ul><br />
  * Default is "a4". If you want to use your own format just pass instead of one of the above predefined formats the size as an number-array , e.g. [595.28, 841.89]
+ * @param dpi {Number} DPI value to change the resolution of the document.
+ * Default is 72.
  * @returns {jsPDF}
  * @description
  * If the first parameter (orientation) is an object, it will be interpreted as an object of named parameters
@@ -62,6 +64,7 @@
  *  orientation: 'p',
  *  unit: 'mm',
  *  format: 'a4',
+ *  dpi: 300,
  *  hotfixes: [] // an array of hotfix strings to enable
  * }
  * ```
@@ -176,7 +179,7 @@ var jsPDF = (function (global) {
    * @constructor
    * @private
    */
-  function jsPDF(orientation, unit, format, compressPdf) {
+  function jsPDF(orientation, unit, format, dpi, compressPdf) {
     var options = {};
 
     if (typeof orientation === 'object') {
@@ -185,6 +188,7 @@ var jsPDF = (function (global) {
       orientation = options.orientation;
       unit = options.unit || unit;
       format = options.format || format;
+      dpi = options.dpi || dpi;
       compressPdf = options.compress || options.compressPdf || compressPdf;
     }
 
@@ -192,6 +196,7 @@ var jsPDF = (function (global) {
     unit = unit || 'mm';
     format = format || 'a4';
     orientation = ('' + (orientation || 'P')).toLowerCase();
+    dpi = dpi || 72;
 
     var format_as_string = ('' + format).toLowerCase(),
       compress = !!compressPdf && typeof Uint8Array === 'function',
@@ -1211,19 +1216,19 @@ var jsPDF = (function (global) {
         k = 1;
         break;
       case 'mm':
-        k = 72 / 25.4;
+        k = dpi / 25.4;
         break;
       case 'cm':
-        k = 72 / 2.54;
+        k = dpi / 2.54;
         break;
       case 'in':
-        k = 72;
+        k = dpi;
         break;
       case 'px':
         if (hasHotfix('px_scaling') == true) {
-          k = 72 / 96;
+          k = dpi / 96;
         } else {
-          k = 96 / 72;
+          k = 96 / dpi;
         }
         break;
       case 'pc':
